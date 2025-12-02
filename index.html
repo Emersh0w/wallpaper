@@ -3,97 +3,149 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Giant To-Do List</title>
+    <title>Giant Interactive To-Do List</title>
     <style>
         body {
             background-color: #1a1a1a; /* Dark background */
             color: #f0f0f0;            /* Light text */
-            font-family: 'Arial Black', Gadget, sans-serif; /* Bold, impactful font */
+            font-family: 'Arial Black', Gadget, sans-serif;
             display: flex;
             flex-direction: column;
-            align-items: flex-start; /* Align tasks to the left */
-            justify-content: flex-start; /* Start tasks from the top */
+            /* --- KEY CHANGE for Left Alignment ---
+               We need to align items to the start (left)
+            */
+            align-items: flex-start; /* Align tasks to the LEFT edge */
+            justify-content: center; /* Keep vertically centered */
             height: 100vh;
             width: 100vw;
             margin: 0;
-            padding: 50px; /* Some padding around the edge */
+            padding: 0;
+            padding-left: 100px; /* Add padding to push tasks away from the absolute left edge */
             box-sizing: border-box;
-            overflow: hidden; /* Prevent scrollbars */
+            overflow: hidden;
         }
 
         .task-item {
             display: flex;
             align-items: center;
             margin-bottom: 40px; /* Space between tasks */
-            cursor: pointer; /* Indicate it's clickable */
-            user-select: none; /* Prevent text selection on double click */
+            cursor: pointer;
+            user-select: none;
+            width: 100%; /* Allows it to occupy full width for alignment control */
+            /* --- KEY CHANGE for Left Alignment ---
+               Items inside the task row should be justified to the start (left)
+            */
+            justify-content: flex-start; 
         }
 
-        .task-item.completed label {
+        .task-item.completed .task-text {
             text-decoration: line-through;
             color: #888; /* Dim completed tasks */
         }
 
+        /* --- Custom Checkbox Styling (Unchanged) --- */
         input[type="checkbox"] {
-            /* Hide default checkbox */
             appearance: none;
             -webkit-appearance: none;
             -moz-appearance: none;
-            width: 80px;  /* Gigantic checkbox size */
-            height: 80px; /* Gigantic checkbox size */
-            border: 8px solid #f0f0f0; /* White border */
-            border-radius: 15px; /* Slightly rounded corners */
-            margin-right: 40px; /* Space between checkbox and text */
+            width: 80px;
+            height: 80px;
+            border: 8px solid #f0f0f0;
+            border-radius: 15px;
+            margin-right: 40px;
             position: relative;
             cursor: pointer;
-            flex-shrink: 0; /* Prevent checkbox from shrinking */
+            flex-shrink: 0;
         }
 
         input[type="checkbox"]:checked {
-            background-color: #2ecc71; /* Green when checked */
-            border-color: #2ecc71; /* Green border when checked */
+            background-color: #2ecc71;
+            border-color: #2ecc71;
         }
 
         input[type="checkbox"]:checked::after {
-            content: '✓'; /* Checkmark symbol */
+            content: '✓';
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            font-size: 70px; /* Gigantic checkmark */
-            color: #1a1a1a; /* Dark checkmark color */
-            line-height: 1; /* Adjust line height for better centering */
+            font-size: 70px;
+            color: #1a1a1a;
+            line-height: 1;
+        }
+        /* ------------------------------------------- */
+
+        .task-text {
+            font-size: 90px;
+            font-weight: bold;
+            line-height: 1;
+            padding: 5px 10px;
+            cursor: text;
         }
 
-        label {
-            font-size: 90px; /* Gigantic text size */
+        .task-input {
+            background-color: #333;
+            color: #f0f0f0;
+            border: 4px solid #f0f0f0;
+            padding: 5px 10px;
+            font-size: 90px;
+            font-family: inherit;
             font-weight: bold;
-            line-height: 1; /* Ensure text sits nicely with checkbox */
+            line-height: 1;
+            box-sizing: border-box;
+            max-width: 1000px;
         }
     </style>
 </head>
 <body>
-    <div class="task-item" id="task1">
-        <input type="checkbox" id="checkbox1">
-        <label for="checkbox1">Finish Project X Report</label>
+    <div class="task-item">
+        <input type="checkbox">
+        <div class="task-text" contenteditable="false">Task 1</div>
     </div>
 
-    <div class="task-item" id="task2">
-        <input type="checkbox" id="checkbox2">
-        <label for="checkbox2">Call Client Y for Update</label>
+    <div class="task-item">
+        <input type="checkbox">
+        <div class="task-text" contenteditable="false">Task 2</div>
     </div>
 
-    <div class="task-item" id="task3">
-        <input type="checkbox" id="checkbox3">
-        <label for="checkbox3">Review Team Z's Designs</label>
+    <div class="task-item">
+        <input type="checkbox">
+        <div class="task-text" contenteditable="false">Task 3</div>
     </div>
 
-    <div class="task-item" id="task4">
-        <input type="checkbox" id="checkbox4">
-        <label for="checkbox4">Prepare for Tomorrow's Meeting</label>
+    <div class="task-item">
+        <input type="checkbox">
+        <div class="task-text" contenteditable="false">Task 4</div>
     </div>
 
     <script>
+        const taskTexts = document.querySelectorAll('.task-text');
+
+        // 1. Double-Click to Edit Functionality
+        taskTexts.forEach(taskText => {
+            taskText.addEventListener('dblclick', function() {
+                this.setAttribute('contenteditable', 'true');
+                this.focus();
+                document.execCommand('selectAll', false, null);
+            });
+
+            // 2. Disable editing when focus is lost (e.g., clicking elsewhere)
+            taskText.addEventListener('blur', function() {
+                this.setAttribute('contenteditable', 'false');
+                this.textContent = this.textContent.trim();
+            });
+
+            // 3. Disable editing when Enter key is pressed
+            taskText.addEventListener('keydown', function(event) {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    this.setAttribute('contenteditable', 'false');
+                    this.blur();
+                }
+            });
+        });
+
+        // 4. Checkbox and Completion Styling
         document.querySelectorAll('.task-item input[type="checkbox"]').forEach(checkbox => {
             checkbox.addEventListener('change', function() {
                 const taskItem = this.closest('.task-item');
@@ -103,8 +155,8 @@
                     taskItem.classList.remove('completed');
                 }
             });
-
-            // Set initial state based on if checkbox is checked (useful if you expand this with local storage)
+            
+            // Set initial state
             const taskItem = checkbox.closest('.task-item');
             if (checkbox.checked) {
                 taskItem.classList.add('completed');
